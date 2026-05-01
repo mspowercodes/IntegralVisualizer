@@ -1,59 +1,50 @@
+import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.widgets import Slider
 
-# Define the function
+st.title("Interactive Integral Visualizer")
+
+# 1. User Input for the function
+# We use eval() to turn text into a math function safely for simple inputs
+func_text = st.sidebar.text_input("Enter a function of x", "x**2")
+a = st.sidebar.number_input("Lower Bound (a)", value=-5.0)
+b = st.sidebar.number_input("Upper Bound (b)", value=5.0)
+
+# 2. Slider for number of rectangles
+n = st.sidebar.slider("Number of Rectangles", 1, 100, 10)
+
+# Define the function based on input
 def f(x):
-    return (x + 1) * (x - 2) * (x + 3)
+    return eval(func_text)
 
-# User-provided domain interval
-a = float(input("Enter start of interval (e.g., -4): "))
-b = float(input("Enter end of interval (e.g., 3): "))
+# 3. Create the Visualization
+fig, ax = plt.subplots()
 
-# Initial setup for the graph
-initial_n = 5
-x_vals = np.linspace(a, b, 400)
-y_vals = f(x_vals)
+# Plot the smooth function curve
+x_curve = np.linspace(-10, 10, 400)
+y_curve = f(x_curve)
+ax.plot(x_curve, y_curve, 'b', label=f'f(x) = {func_text}')
 
-fig, ax = plt.subplots(figsize=(10, 6))
-plt.subplots_adjust(bottom=0.25)  # Make room for the slider
+# Draw the Riemann Sum Rectangles
+dx = (b - a) / n
+x_rects = np.linspace(a, b - dx, n) # Left-hand Riemann sum
+y_rects = f(x_rects)
 
-# Plot the continuous function
-line, = ax.plot(x_vals, y_vals, 'k', lw=2, label='f(x) = (x+1)(x-2)(x+3)')
-rect_container = []
+ax.bar(x_rects, y_rects, width=dx, align='edge', 
+       alpha=0.3, color='orange', edgecolor='black')
 
-def update(val):
-    # Remove previous rectangles
-    for r in rect_container:
-        r.remove()
-    rect_container.clear()
-    
-    n = int(slider.val)
-    dx = (b - a) / n
-    # Use left-endpoint Riemann sum for rectangle positions
-    x_rects = np.linspace(a, b - dx, n)
-    y_rects = f(x_rects)
-    
-    # Draw new rectangles
-    new_rects = ax.bar(x_rects, y_rects, width=dx, align='edge', 
-                       alpha=0.3, color='skyblue', edgecolor='blue')
-    rect_container.extend(new_rects)
-    
-    # Calculate and display the sum
-    riemann_sum = np.sum(y_rects * dx)
-    ax.set_title(f"Riemann Sum (n={n}): {riemann_sum:.4f}")
-    fig.canvas.draw_idle()
-
-# Create the slider axes and widget
-ax_slider = plt.axes([0.2, 0.1, 0.6, 0.03])
-slider = Slider(ax_slider, 'Rectangles', 1, 100, valinit=initial_n, valstep=1)
-
-# Connect the slider to the update function
-slider.on_changed(update)
-
-# Initial call to populate rectangles
-update(initial_n)
-
-ax.axhline(0, color='black', lw=1)
+# Formatting the graph
+ax.set_xlim(-10, 10)
+ax.set_ylim(-10, 10)
+ax.axhline(0, color='black', linewidth=1)
+ax.axvline(0, color='black', linewidth=1)
+ax.set_title(f"Approximating Area with {n} Rectangles")
 ax.legend()
-plt.show()
+
+# 4. Display in Streamlit
+st.pyplot(fig)
+
+# Show the calculated area approximation
+approx_area = np.sum(y_rects * dx)
+st.write(f"### Approximate Area: {approx_area:.4f}")
+
