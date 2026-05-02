@@ -26,8 +26,9 @@ st.sidebar.header("Parameters")
 raw_func = st.sidebar.text_input("Function f(x):", "x^2")
 func_text = preprocess_function(raw_func)
 
-a = st.sidebar.number_input("Lower Bound (a)", value=0.0, step=0.1)
-b = st.sidebar.number_input("Upper Bound (b)", value=4.0, step=0.1)
+# The "%g" format tells Streamlit to hide trailing zeros in the box
+a = st.sidebar.number_input("Lower Bound (a)", value=0.0, step=0.1, format="%g")
+b = st.sidebar.number_input("Upper Bound (b)", value=4.0, step=0.1, format="%g")
 n = st.sidebar.slider("Number of Rectangles/Steps", 1, 100, 10)
 
 method = st.sidebar.selectbox(
@@ -35,8 +36,8 @@ method = st.sidebar.selectbox(
     ("Left Endpoint", "Right Endpoint", "Midpoint", "Trapezoid")
 )
 
-a_disp = format_num(a)
-b_disp = format_num(b)
+a_disp = f"{a:g}"
+b_disp = f"{b:g}"
 
 # --- Math Logic ---
 def f(x):
