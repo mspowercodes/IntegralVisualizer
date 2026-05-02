@@ -19,9 +19,7 @@ def preprocess_function(text):
 
 # --- Formatting Helper ---
 def format_num(val):
-    if val == int(val): return "%d"
-    if round(val * 10, 1) == int(val * 10): return "%.1f"
-    return "%.2f"
+    return f"{val:g}"
 
 # --- Sidebar Inputs ---
 st.sidebar.header("Parameters")
@@ -37,8 +35,8 @@ method = st.sidebar.selectbox(
     ("Left Endpoint", "Right Endpoint", "Midpoint", "Trapezoid")
 )
 
-a_disp = (format_num(a) % a)
-b_disp = (format_num(b) % b)
+a_disp = format_num(a)
+b_disp = format_num(b)
 
 # --- Math Logic ---
 def f(x):
