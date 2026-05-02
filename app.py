@@ -101,8 +101,8 @@ if y_curve is not None:
         approx_area = (dx / 2) * (y_vals[0] + 2 * np.sum(y_vals[1:-1]) + y_vals[-1])
 
     # Show results in columns at the top
-    col1.metric("Approximate Area", f"{approx_area:.4f}")
-    col2.metric("Exact Area", f"{exact_area:.4f}", f"{approx_area - exact_area:.4f} (Error)")
+col1.metric("Approximate Area", f"{round(approx_area, 2):g}")
+col2.metric("Exact Area", f"{round(exact_area, 2):g}", f"{round(approx_area - exact_area, 2):g} (Error)")
 
     ax.axhline(0, color='black', lw=1)
     ax.axvline(0, color='black', lw=1)
