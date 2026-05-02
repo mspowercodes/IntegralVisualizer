@@ -78,36 +78,38 @@ padding = max(abs(b - a) * 0.2, 1)
 x_curve = np.linspace(a - padding, b + padding, 400)
 y_curve = f(x_curve)
 
-if y_curve is not None:
-    ax.plot(x_curve, y_curve, 'b', lw=2, label=f'f(x) = {raw_func}')
+    if y_curve is not None:
+        ax.plot(x_curve, y_curve, 'b', lw=2, label=f'f(x) = {raw_func}')
+        
+        if method == "Left Endpoint":
+            y_left = f(x_vals[:-1])
+            ax.bar(x_vals[:-1], y_left, width=dx, align='edge', alpha=0.3, color='orange', edgecolor='black')
+            approx_area = np.sum(y_left * dx)
+        elif method == "Right Endpoint":
+            y_right = f(x_vals[1:])
+            ax.bar(x_vals[:-1], y_right, width=dx, align='edge', alpha=0.3, color='green', edgecolor='black')
+            approx_area = np.sum(y_right * dx)
+        elif method == "Midpoint":
+            x_mid = (x_vals[:-1] + x_vals[1:]) / 2
+            y_mid = f(x_mid)
+            ax.bar(x_vals[:-1], y_mid, width=dx, align='edge', alpha=0.3, color='purple', edgecolor='black')
+            approx_area = np.sum(y_mid * dx)
+        elif method == "Trapezoid":
+            y_vals = f(x_vals)
+            for i in range(n):
+                ax.fill([x_vals[i], x_vals[i+1], x_vals[i+1], x_vals[i]], [0, 0, y_vals[i+1], y_vals[i]], 'red', alpha=0.2, edgecolor='black')
+            approx_area = (dx / 2) * (y_vals[0] + 2 * np.sum(y_vals[1:-1]) + y_vals[-1])
 
-    if method == "Left Endpoint":
-        y_left = f(x_vals[:-1])
-        ax.bar(x_vals[:-1], y_left, width=dx, align='edge', alpha=0.3, color='orange', edgecolor='black')
-        approx_area = np.sum(y_left * dx)
-    elif method == "Right Endpoint":
-        y_right = f(x_vals[1:])
-        ax.bar(x_vals[:-1], y_right, width=dx, align='edge', alpha=0.3, color='green', edgecolor='black')
-        approx_area = np.sum(y_right * dx)
-    elif method == "Midpoint":
-        x_mid = (x_vals[:-1] + x_vals[1:]) / 2
-        y_mid = f(x_mid)
-        ax.bar(x_vals[:-1], y_mid, width=dx, align='edge', alpha=0.3, color='purple', edgecolor='black')
-        approx_area = np.sum(y_mid * dx)
-    elif method == "Trapezoid":
-        y_vals = f(x_vals)
-        for i in range(n):
-            ax.fill([x_vals[i], x_vals[i+1], x_vals[i+1], x_vals[i]], [0, 0, y_vals[i+1], y_vals[i]], 'red', alpha=0.2, edgecolor='black')
-        approx_area = (dx / 2) * (y_vals[0] + 2 * np.sum(y_vals[1:-1]) + y_vals[-1])
+        # Formatting metrics to 2 decimal places and stripping zeros
+        area_clean = f"{round(approx_area, 2):g}"
+        exact_clean = f"{round(exact_area, 2):g}"
+        diff_clean = f"{round(approx_area - exact_area, 2):g}"
 
-    # Show results in columns at the top
-        col1.metric("Approximate Area", f"{round(approx_area, 2):g}")
-        col2.metric("Exact Area", f"{round(exact_area, 2):g}", f"{round(approx_area - exact_area, 2):g} (Error)")
+        col1.metric("Approximate Area", area_clean)
+        col2.metric("Exact Area", exact_clean, f"{diff_clean} (Error)")
 
         ax.axhline(0, color='black', lw=1)
         ax.axvline(0, color='black', lw=1)
         ax.set_title(f"{method} from {a_disp} to {b_disp}")
         ax.grid(True, linestyle=':', alpha=0.6)
         st.pyplot(fig)
-else:
-    st.error(f"**Check your function!** Python couldn't read '{raw_func}'.")
